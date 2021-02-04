@@ -38,8 +38,7 @@ public class MetricServiceImpl implements MetricService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
             createMetric(createMetricRequest, userEntityOptional);
         } else {
             log.error(ErrorLogConstant.USER_NOT_FOUND);
@@ -53,12 +52,10 @@ public class MetricServiceImpl implements MetricService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
             Optional<MetricEntity> metricEntityOptional = metricRepository.findByUserIdAndId(userEntityOptional.get().getId(), metricId);
 
-            boolean metricIsPresent = metricEntityOptional.isPresent();
-            if (metricIsPresent) {
+            if (isMetricPresent(metricEntityOptional)) {
                 updateMetric(updateMetricRequest, metricId);
             } else {
                 log.error(ErrorLogConstant.METRIC_NOT_FOUND);
@@ -76,12 +73,10 @@ public class MetricServiceImpl implements MetricService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
             Optional<MetricEntity> metricEntityOptional = metricRepository.findByUserIdAndId(userEntityOptional.get().getId(), metricId);
 
-            boolean metricIsPresent = metricEntityOptional.isPresent();
-            if (metricIsPresent) {
+            if (isMetricPresent(metricEntityOptional)) {
                 return getMetric(metricEntityOptional.get());
             } else {
                 log.error(ErrorLogConstant.METRIC_NOT_FOUND);
@@ -99,12 +94,10 @@ public class MetricServiceImpl implements MetricService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
             Optional<List<MetricEntity>> metricEntitiesOptional = metricRepository.findAllByUserId(userEntityOptional.get().getId());
 
-            boolean metricIsPresent = metricEntitiesOptional.isPresent();
-            if (metricIsPresent) {
+            if (areMetricsPresent(metricEntitiesOptional)) {
                 return getUserMetricsResponses(metricEntitiesOptional.get());
             } else {
                 log.error(ErrorLogConstant.METRIC_NOT_FOUND);
@@ -137,8 +130,7 @@ public class MetricServiceImpl implements MetricService {
         MetricDto metric = CreateMetricRequestConverter.convert(createMetricRequest);
         MetricEntity metricEntity = new MetricEntity();
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
             metricEntity.setUser(userEntityOptional.get());
             metricEntity.setSprintLabel(metric.getSprintLabel());
             metricEntity.setCommit(metric.getCommit());
@@ -157,8 +149,7 @@ public class MetricServiceImpl implements MetricService {
 
         Optional<MetricEntity> metricEntityOptional = metricRepository.findById(metricId);
 
-        boolean metricIsPresent = metricEntityOptional.isPresent();
-        if (metricIsPresent) {
+        if (isMetricPresent(metricEntityOptional)) {
             MetricDto metric = UpdateMetricRequestConverter.convert(updateMetricRequest);
 
             metricEntityOptional.get().setSprintLabel(metric.getSprintLabel());
@@ -229,5 +220,13 @@ public class MetricServiceImpl implements MetricService {
         return Optional.of(metricEntities.stream()
                 .map(this::getMetrics).collect(Collectors.toList()))
                 .orElseThrow(MetricNotFoundException::new);
+    }
+
+    private static boolean isMetricPresent(Optional<MetricEntity> metricEntityOptional) {
+        return metricEntityOptional.isPresent();
+    }
+
+    private static boolean areMetricsPresent(Optional<List<MetricEntity>> metricEntitiesOptional) {
+        return metricEntitiesOptional.isPresent();
     }
 }

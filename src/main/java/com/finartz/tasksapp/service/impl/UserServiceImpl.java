@@ -4,9 +4,7 @@ import com.finartz.tasksapp.model.converter.LoginRequestConverter;
 import com.finartz.tasksapp.model.converter.SignupRequestConverter;
 import com.finartz.tasksapp.model.converter.UpdateUserRequestConverter;
 import com.finartz.tasksapp.model.dto.UserDto;
-import com.finartz.tasksapp.model.entity.RoleEntity;
 import com.finartz.tasksapp.model.entity.UserEntity;
-import com.finartz.tasksapp.model.enums.RoleType;
 import com.finartz.tasksapp.model.exception.PasswordNotCorrectException;
 import com.finartz.tasksapp.model.exception.UserAlreadyExistsException;
 import com.finartz.tasksapp.model.exception.UserNotFoundException;
@@ -16,7 +14,6 @@ import com.finartz.tasksapp.model.request.UpdateUserRequest;
 import com.finartz.tasksapp.model.response.GetUserResponse;
 import com.finartz.tasksapp.model.response.GetUsersResponse;
 import com.finartz.tasksapp.model.response.constant.ErrorLogConstant;
-import com.finartz.tasksapp.repository.RoleRepository;
 import com.finartz.tasksapp.repository.UserRepository;
 import com.finartz.tasksapp.service.UserService;
 import lombok.AllArgsConstructor;
@@ -34,7 +31,6 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Override
@@ -52,8 +48,7 @@ public class UserServiceImpl implements UserService {
         UserDto user = LoginRequestConverter.convert(loginRequest);
         Optional<UserEntity> userEntityOptional = userRepository.findByEmail(user.getEmail());
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (isUserPresent(userEntityOptional)) {
             loginPasswordControl(loginRequest, userEntityOptional);
         } else {
             log.error(ErrorLogConstant.USER_NOT_FOUND);
@@ -67,8 +62,7 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (isUserPresent(userEntityOptional)) {
             UserDto user = UpdateUserRequestConverter.convert(updateUserRequest);
             updateUser(user, userEntityOptional.get());
         } else {
@@ -83,8 +77,7 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (isUserPresent(userEntityOptional)) {
             userRepository.delete(userEntityOptional.get());
         } else {
             log.error(ErrorLogConstant.USER_NOT_FOUND);
@@ -98,8 +91,7 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (isUserPresent(userEntityOptional)) {
             return getUser(userEntityOptional.get());
         } else {
             log.error(ErrorLogConstant.USER_NOT_FOUND);
@@ -120,8 +112,7 @@ public class UserServiceImpl implements UserService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findByEmail(user.getEmail());
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (!(userIsPresent)) {
+        if (!isUserPresent(userEntityOptional)) {
             saveUser(user);
         } else {
             log.error("User Already Exists!");
@@ -140,25 +131,12 @@ public class UserServiceImpl implements UserService {
         userEntity.setPassword(passwordEncoder(user.getPassword()));
 
         userRepository.save(userEntity);
-        addDeveloperRole(userEntity);
-    }
-
-    private void addDeveloperRole(UserEntity userEntity) {
-        log.info("Add Developer Role Call Starting");
-
-        RoleEntity roleEntity = new RoleEntity();
-
-        roleEntity.setUser(userEntity);
-        roleEntity.setType(RoleType.DEVELOPER);
-
-        roleRepository.save(roleEntity);
     }
 
     private void loginPasswordControl(LoginRequest loginRequest, Optional<UserEntity> userEntityOptional) throws PasswordNotCorrectException {
         log.info("Log In Password Control Call Starting");
 
         boolean passwordControl = encoder.matches(loginRequest.getPassword(), userEntityOptional.get().getPassword());
-
         if (!passwordControl) {
             log.error("Password Not Correct!");
             throw new PasswordNotCorrectException();
@@ -204,6 +182,10 @@ public class UserServiceImpl implements UserService {
         log.info("Get Users Responses Call Starting");
 
         return userEntities.stream().map(this::getUsers).collect(Collectors.toList());
+    }
+
+    public static boolean isUserPresent(Optional<UserEntity> userEntityOptional) {
+        return userEntityOptional.isPresent();
     }
 
     private String passwordEncoder(String password) {

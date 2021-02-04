@@ -10,7 +10,7 @@ import com.finartz.tasksapp.model.response.GetUserMetricsResponse;
 
 import java.util.List;
 
-public interface wMetricService {
+public interface MetricService {
 
     void createMetricByUserId(Long userId, CreateMetricRequest createMetricRequest) throws UserNotFoundException;
 

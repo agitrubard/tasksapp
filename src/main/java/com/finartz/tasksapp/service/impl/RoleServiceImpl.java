@@ -36,17 +36,20 @@ public class RoleServiceImpl implements RoleService {
 
         boolean userIsPresent = userEntityOptional.isPresent();
         if (userIsPresent) {
-            Optional<RoleEntity> roleEntityOptional = roleRepository.findById(userEntityOptional.get().getId());
-
-            boolean roleIsPresent = roleEntityOptional.isPresent();
-            if (!roleIsPresent) {
-                add(addRoleRequest, userEntityOptional);
-            } else {
-                update(addRoleRequest, roleEntityOptional);
-            }
+            addOrUpdateRole(addRoleRequest, userEntityOptional);
         } else {
             log.error(ErrorLogConstant.USER_NOT_FOUND);
             throw new UserNotFoundException();
+        }
+    }
+
+    private void addOrUpdateRole(AddRoleRequest addRoleRequest, Optional<UserEntity> userEntityOptional) {
+        Optional<RoleEntity> roleEntityOptional = roleRepository.findById(userEntityOptional.get().getId());
+
+        if (!isRolePresent(roleEntityOptional)) {
+            add(addRoleRequest, userEntityOptional);
+        } else {
+            update(addRoleRequest, roleEntityOptional);
         }
     }
 
@@ -56,8 +59,7 @@ public class RoleServiceImpl implements RoleService {
 
         Optional<RoleEntity> roleEntityOptional = roleRepository.findByUserId(userId);
 
-        boolean userIsPresent = roleEntityOptional.isPresent();
-        if (userIsPresent) {
+        if (isRolePresent(roleEntityOptional)) {
             return getRole(roleEntityOptional.get());
         } else {
             log.error(ErrorLogConstant.USER_NOT_FOUND);
@@ -125,5 +127,9 @@ public class RoleServiceImpl implements RoleService {
         log.info("Get Roles Responses Call Starting");
 
         return roleEntities.stream().map(this::getRoles).collect(Collectors.toList());
+    }
+
+    private static boolean isRolePresent(Optional<RoleEntity> roleEntityOptional) {
+        return roleEntityOptional.isPresent();
     }
 }
