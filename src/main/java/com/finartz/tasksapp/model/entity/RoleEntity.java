@@ -5,13 +5,13 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Table(name = "roles")
 @Entity
-@Builder(toBuilder = true)
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
+@Table(name = "roles")
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class RoleEntity {
 
     @Id

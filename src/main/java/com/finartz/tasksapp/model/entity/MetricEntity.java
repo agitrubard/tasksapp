@@ -4,13 +4,13 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Table(name = "metrics")
 @Entity
-@Builder(toBuilder = true)
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
+@Table(name = "metrics")
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class MetricEntity {
 
     @Id

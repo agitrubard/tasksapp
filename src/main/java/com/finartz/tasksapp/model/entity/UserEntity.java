@@ -5,14 +5,13 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.List;
 
-@Table(name = "users")
-@ToString(of = {"id", "name", "surname", "email"})
 @Entity
-@Builder(toBuilder = true)
-@AllArgsConstructor
-@NoArgsConstructor
-@Setter
+@Table(name = "users")
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class UserEntity {
 
     @Id
