@@ -9,13 +9,10 @@ public class CreateMetricRequestConverter {
     }
 
     public static MetricDto convert(CreateMetricRequest createMetricRequest) {
-        MetricDto metric = new MetricDto();
-
-        metric.setSprintLabel(createMetricRequest.getSprintLabel());
-        metric.setCommit(createMetricRequest.getCommit());
-        metric.setBugCount(createMetricRequest.getBugCount());
-        metric.setComplete(createMetricRequest.getComplete());
-
-        return metric;
+        return MetricDto.builder()
+                .sprintLabel(createMetricRequest.getSprintLabel())
+                .commit(createMetricRequest.getCommit())
+                .bugCount(createMetricRequest.getBugCount())
+                .complete(createMetricRequest.getComplete()).build();
     }
 }

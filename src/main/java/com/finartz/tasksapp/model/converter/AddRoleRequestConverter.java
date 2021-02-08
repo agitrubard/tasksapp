@@ -9,10 +9,7 @@ public class AddRoleRequestConverter {
     }
 
     public static RoleDto convert(AddRoleRequest addRoleRequest) {
-        RoleDto role = new RoleDto();
-
-        role.setType(addRoleRequest.getType());
-
-        return role;
+        return RoleDto.builder()
+                .type(addRoleRequest.getType()).build();
     }
 }

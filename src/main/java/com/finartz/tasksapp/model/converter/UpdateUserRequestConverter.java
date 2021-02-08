@@ -9,12 +9,9 @@ public class UpdateUserRequestConverter {
     }
 
     public static UserDto convert(UpdateUserRequest updateUserRequest) {
-        UserDto user = new UserDto();
-
-        user.setName(updateUserRequest.getName());
-        user.setSurname(updateUserRequest.getSurname());
-        user.setEmail(updateUserRequest.getEmail());
-
-        return user;
+        return UserDto.builder()
+                .name(updateUserRequest.getName())
+                .surname(updateUserRequest.getSurname())
+                .email(updateUserRequest.getEmail()).build();
     }
 }

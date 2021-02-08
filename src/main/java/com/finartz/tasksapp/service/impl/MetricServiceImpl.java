@@ -34,7 +34,7 @@ public class MetricServiceImpl implements MetricService {
 
     @Override
     public void createMetricByUserId(Long userId, CreateMetricRequest createMetricRequest) throws UserNotFoundException {
-        log.info("Create Metric By User ID Call Starting");
+        log.debug("Create Metric By User ID Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
@@ -48,7 +48,7 @@ public class MetricServiceImpl implements MetricService {
 
     @Override
     public void updateMetricByUserIdAndMetricId(Long userId, UpdateMetricRequest updateMetricRequest, Long metricId) throws UserNotFoundException, MetricNotFoundException {
-        log.info("Update Metric By User ID and Metric ID Call Starting");
+        log.debug("Update Metric By User ID and Metric ID Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
@@ -69,7 +69,7 @@ public class MetricServiceImpl implements MetricService {
 
     @Override
     public GetMetricResponse getMetricByUserIdAndMetricId(Long userId, Long metricId) throws UserNotFoundException, MetricNotFoundException {
-        log.info("Get Metric By User ID and Metric ID Call Starting");
+        log.debug("Get Metric By User ID and Metric ID Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
@@ -90,7 +90,7 @@ public class MetricServiceImpl implements MetricService {
 
     @Override
     public List<GetUserMetricsResponse> getMetricsByUserId(Long userId) throws UserNotFoundException, MetricNotFoundException {
-        log.info("Get Metrics By User ID Call Starting");
+        log.debug("Get Metrics By User ID Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
@@ -111,7 +111,7 @@ public class MetricServiceImpl implements MetricService {
 
     @Override
     public List<GetMetricsResponse> getAllMetrics() throws MetricNotFoundException {
-        log.info("Get All Metrics Call Starting");
+        log.debug("Get All Metrics Call Starting");
 
         List<MetricEntity> metricEntities = metricRepository.findAll();
 
@@ -125,17 +125,17 @@ public class MetricServiceImpl implements MetricService {
     }
 
     private void createMetric(CreateMetricRequest createMetricRequest, Optional<UserEntity> userEntityOptional) throws UserNotFoundException {
-        log.info("Create Metric Call Starting");
+        log.debug("Create Metric Call Starting");
 
         MetricDto metric = CreateMetricRequestConverter.convert(createMetricRequest);
-        MetricEntity metricEntity = new MetricEntity();
 
         if (UserServiceImpl.isUserPresent(userEntityOptional)) {
-            metricEntity.setUser(userEntityOptional.get());
-            metricEntity.setSprintLabel(metric.getSprintLabel());
-            metricEntity.setCommit(metric.getCommit());
-            metricEntity.setBugCount(metric.getBugCount());
-            metricEntity.setComplete(metric.getComplete());
+            MetricEntity metricEntity = MetricEntity.builder()
+                    .user(userEntityOptional.get())
+                    .sprintLabel(metric.getSprintLabel())
+                    .commit(metric.getCommit())
+                    .bugCount(metric.getBugCount())
+                    .complete(metric.getComplete()).build();
 
             metricRepository.save(metricEntity);
         } else {
@@ -145,7 +145,7 @@ public class MetricServiceImpl implements MetricService {
     }
 
     private void updateMetric(UpdateMetricRequest updateMetricRequest, Long metricId) throws MetricNotFoundException {
-        log.info("Update Metric Call Starting");
+        log.debug("Update Metric Call Starting");
 
         Optional<MetricEntity> metricEntityOptional = metricRepository.findById(metricId);
 
@@ -165,49 +165,40 @@ public class MetricServiceImpl implements MetricService {
     }
 
     private GetMetricResponse getMetric(MetricEntity metricEntity) {
-        log.info("Get Metric Call Starting");
+        log.debug("Get Metric Call Starting");
 
-        GetMetricResponse getMetricResponse = new GetMetricResponse();
-
-        getMetricResponse.setSprintLabel(metricEntity.getSprintLabel());
-        getMetricResponse.setCommit(metricEntity.getCommit());
-        getMetricResponse.setBugCount(metricEntity.getBugCount());
-        getMetricResponse.setComplete(metricEntity.getComplete());
-
-        return getMetricResponse;
+        return GetMetricResponse.builder()
+                .sprintLabel(metricEntity.getSprintLabel())
+                .commit(metricEntity.getCommit())
+                .bugCount(metricEntity.getBugCount())
+                .complete(metricEntity.getComplete()).build();
     }
 
     private GetUserMetricsResponse getUserMetrics(MetricEntity metricEntity) {
-        log.info("Get User Metrics Call Starting");
+        log.debug("Get User Metrics Call Starting");
 
-        GetUserMetricsResponse getUserMetricsResponse = new GetUserMetricsResponse();
-
-        getUserMetricsResponse.setMetricId(metricEntity.getId());
-        getUserMetricsResponse.setSprintLabel(metricEntity.getSprintLabel());
-        getUserMetricsResponse.setCommit(metricEntity.getCommit());
-        getUserMetricsResponse.setBugCount(metricEntity.getBugCount());
-        getUserMetricsResponse.setComplete(metricEntity.getComplete());
-
-        return getUserMetricsResponse;
+        return GetUserMetricsResponse.builder()
+                .metricId(metricEntity.getId())
+                .sprintLabel(metricEntity.getSprintLabel())
+                .commit(metricEntity.getCommit())
+                .bugCount(metricEntity.getBugCount())
+                .complete(metricEntity.getComplete()).build();
     }
 
     private GetMetricsResponse getMetrics(MetricEntity metricEntity) {
-        log.info("Get Metrics Call Starting");
+        log.debug("Get Metrics Call Starting");
 
-        GetMetricsResponse getMetricsResponse = new GetMetricsResponse();
-
-        getMetricsResponse.setUserId(metricEntity.getUser().getId());
-        getMetricsResponse.setMetricId(metricEntity.getId());
-        getMetricsResponse.setSprintLabel(metricEntity.getSprintLabel());
-        getMetricsResponse.setCommit(metricEntity.getCommit());
-        getMetricsResponse.setBugCount(metricEntity.getBugCount());
-        getMetricsResponse.setComplete(metricEntity.getComplete());
-
-        return getMetricsResponse;
+        return GetMetricsResponse.builder()
+                .userId(metricEntity.getUser().getId())
+                .metricId(metricEntity.getId())
+                .sprintLabel(metricEntity.getSprintLabel())
+                .commit(metricEntity.getCommit())
+                .bugCount(metricEntity.getBugCount())
+                .complete(metricEntity.getComplete()).build();
     }
 
     private List<GetUserMetricsResponse> getUserMetricsResponses(List<MetricEntity> metricEntities) throws MetricNotFoundException {
-        log.info("Get User Metrics Responses Call Starting");
+        log.debug("Get User Metrics Responses Call Starting");
 
         return Optional.of(metricEntities.stream()
                 .map(this::getUserMetrics).collect(Collectors.toList()))
@@ -215,7 +206,7 @@ public class MetricServiceImpl implements MetricService {
     }
 
     private List<GetMetricsResponse> getAllMetricsResponses(List<MetricEntity> metricEntities) throws MetricNotFoundException {
-        log.info("Get All Metrics Responses Call Starting");
+        log.debug("Get All Metrics Responses Call Starting");
 
         return Optional.of(metricEntities.stream()
                 .map(this::getMetrics).collect(Collectors.toList()))

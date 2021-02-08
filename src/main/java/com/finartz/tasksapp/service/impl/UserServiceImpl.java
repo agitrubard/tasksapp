@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void createUser(SignupRequest signupRequest) throws UserAlreadyExistsException {
-        log.info("Create User Call Starting");
+        log.debug("Create User Call Starting");
 
         UserDto user = SignupRequestConverter.convert(signupRequest);
         save(user);
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void login(LoginRequest loginRequest) throws UserNotFoundException, PasswordNotCorrectException {
-        log.info("Log In Call Starting");
+        log.debug("Log In Call Starting");
 
         UserDto user = LoginRequestConverter.convert(loginRequest);
         Optional<UserEntity> userEntityOptional = userRepository.findByEmail(user.getEmail());
@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserByUserId(Long userId, UpdateUserRequest updateUserRequest) throws UserNotFoundException {
-        log.info("Update User By UserId Call Starting");
+        log.debug("Update User By UserId Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUserByUserId(Long userId) throws UserNotFoundException {
-        log.info("Delete User By UserId Call Starting");
+        log.debug("Delete User By UserId Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public GetUserResponse getUserByUserId(Long userId) throws UserNotFoundException {
-        log.info("Get User By UserId Call Starting");
+        log.debug("Get User By UserId Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
@@ -101,14 +101,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<GetUsersResponse> getAllUsers() {
-        log.info("Get All User Call Starting");
+        log.debug("Get All User Call Starting");
 
         List<UserEntity> userEntities = userRepository.findAll();
         return getUsersResponses(userEntities);
     }
 
     private void save(UserDto user) throws UserAlreadyExistsException {
-        log.info("Save Call Starting");
+        log.debug("Save Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findByEmail(user.getEmail());
 
@@ -121,20 +121,19 @@ public class UserServiceImpl implements UserService {
     }
 
     private void saveUser(UserDto user) {
-        log.info("Save User Call Starting");
+        log.debug("Save User Call Starting");
 
-        UserEntity userEntity = new UserEntity();
-
-        userEntity.setName(user.getName());
-        userEntity.setSurname(user.getSurname());
-        userEntity.setEmail(user.getEmail());
-        userEntity.setPassword(passwordEncoder(user.getPassword()));
+        UserEntity userEntity = UserEntity.builder()
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .password(passwordEncoder(user.getPassword())).build();
 
         userRepository.save(userEntity);
     }
 
     private void loginPasswordControl(LoginRequest loginRequest, Optional<UserEntity> userEntityOptional) throws PasswordNotCorrectException {
-        log.info("Log In Password Control Call Starting");
+        log.debug("Log In Password Control Call Starting");
 
         boolean passwordControl = encoder.matches(loginRequest.getPassword(), userEntityOptional.get().getPassword());
         if (!passwordControl) {
@@ -144,7 +143,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void updateUser(UserDto user, UserEntity userEntity) {
-        log.info("Update User Call Starting");
+        log.debug("Update User Call Starting");
 
         userEntity.setName(user.getName());
         userEntity.setSurname(user.getSurname());
@@ -154,32 +153,26 @@ public class UserServiceImpl implements UserService {
     }
 
     private GetUserResponse getUser(UserEntity userEntity) {
-        log.info("Get User Call Starting");
+        log.debug("Get User Call Starting");
 
-        GetUserResponse getUserResponse = new GetUserResponse();
-
-        getUserResponse.setName(userEntity.getName());
-        getUserResponse.setSurname(userEntity.getSurname());
-        getUserResponse.setEmail(userEntity.getEmail());
-
-        return getUserResponse;
+        return GetUserResponse.builder()
+                .name(userEntity.getName())
+                .surname(userEntity.getSurname())
+                .email(userEntity.getEmail()).build();
     }
 
     private GetUsersResponse getUsers(UserEntity userEntity) {
-        log.info("Get Users Call Starting");
+        log.debug("Get Users Call Starting");
 
-        GetUsersResponse getUsersResponse = new GetUsersResponse();
-
-        getUsersResponse.setId(userEntity.getId());
-        getUsersResponse.setName(userEntity.getName());
-        getUsersResponse.setSurname(userEntity.getSurname());
-        getUsersResponse.setEmail(userEntity.getEmail());
-
-        return getUsersResponse;
+        return GetUsersResponse.builder()
+                .id(userEntity.getId())
+                .name(userEntity.getName())
+                .surname(userEntity.getSurname())
+                .email(userEntity.getEmail()).build();
     }
 
     private List<GetUsersResponse> getUsersResponses(List<UserEntity> userEntities) {
-        log.info("Get Users Responses Call Starting");
+        log.debug("Get Users Responses Call Starting");
 
         return userEntities.stream().map(this::getUsers).collect(Collectors.toList());
     }
@@ -189,7 +182,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private String passwordEncoder(String password) {
-        log.info("Password Encoder Call Starting");
+        log.debug("Password Encoder Call Starting");
 
         return encoder.encode(password);
     }

@@ -1,16 +1,13 @@
 package com.finartz.tasksapp.model.dto;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@Builder
 public class MetricDto implements Serializable {
 
     private static final long serialVersionUID = 3561357931331781397L;

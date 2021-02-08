@@ -30,7 +30,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void addRole(Long id, AddRoleRequest addRoleRequest) throws UserNotFoundException {
-        log.info("Add Role Call Starting");
+        log.debug("Add Role Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(id);
 
@@ -55,7 +55,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public GetUserRoleResponse getUserRoleByUserId(Long userId) throws UserNotFoundException {
-        log.info("Get User Role By User ID Call Starting");
+        log.debug("Get User Role By User ID Call Starting");
 
         Optional<RoleEntity> roleEntityOptional = roleRepository.findByUserId(userId);
 
@@ -69,26 +69,25 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<GetUsersRoleResponse> getAllUsersRole() {
-        log.info("Get All Users Role Call Starting");
+        log.debug("Get All Users Role Call Starting");
 
         List<RoleEntity> roleEntities = roleRepository.findAll();
         return getRolesResponses(roleEntities);
     }
 
     private void add(AddRoleRequest addRoleRequest, Optional<UserEntity> userEntityOptional) {
-        log.info("Add Call Starting");
+        log.debug("Add Call Starting");
 
         RoleDto role = AddRoleRequestConverter.convert(addRoleRequest);
-        RoleEntity roleEntity = new RoleEntity();
-
-        roleEntity.setUser(userEntityOptional.get());
-        roleEntity.setType(role.getType());
+        RoleEntity roleEntity = RoleEntity.builder()
+                .user(userEntityOptional.get())
+                .type(role.getType()).build();
 
         roleRepository.save(roleEntity);
     }
 
     private void update(AddRoleRequest addRoleRequest, Optional<RoleEntity> roleEntityOptional) {
-        log.info("Update Call Starting");
+        log.debug("Update Call Starting");
 
         RoleDto role = AddRoleRequestConverter.convert(addRoleRequest);
 
@@ -98,33 +97,26 @@ public class RoleServiceImpl implements RoleService {
     }
 
     private GetUserRoleResponse getRole(RoleEntity roleEntity) {
-        log.info("Get Role Call Starting");
+        log.debug("Get Role Call Starting");
 
-        GetUserRoleResponse getUserRoleResponse = new GetUserRoleResponse();
-
-        getUserRoleResponse.setName(roleEntity.getUser().getName());
-        getUserRoleResponse.setSurname(roleEntity.getUser().getSurname());
-        getUserRoleResponse.setType(roleEntity.getType());
-
-        return getUserRoleResponse;
+        return GetUserRoleResponse.builder()
+                .name(roleEntity.getUser().getName())
+                .surname(roleEntity.getUser().getSurname())
+                .type(roleEntity.getType()).build();
     }
 
     private GetUsersRoleResponse getRoles(RoleEntity roleEntity) {
-        log.info("Get Roles Call Starting");
+        log.debug("Get Roles Call Starting");
 
-        GetUsersRoleResponse getUsersRoleResponse = new GetUsersRoleResponse();
-
-        getUsersRoleResponse.setUserId(roleEntity.getUser().getId());
-        getUsersRoleResponse.setName(roleEntity.getUser().getName());
-        getUsersRoleResponse.setSurname(roleEntity.getUser().getSurname());
-        getUsersRoleResponse.setType(roleEntity.getType());
-
-        return getUsersRoleResponse;
+        return GetUsersRoleResponse.builder()
+                .userId(roleEntity.getUser().getId())
+                .name(roleEntity.getUser().getName())
+                .surname(roleEntity.getUser().getSurname())
+                .type(roleEntity.getType()).build();
     }
 
-
     private List<GetUsersRoleResponse> getRolesResponses(List<RoleEntity> roleEntities) {
-        log.info("Get Roles Responses Call Starting");
+        log.debug("Get Roles Responses Call Starting");
 
         return roleEntities.stream().map(this::getRoles).collect(Collectors.toList());
     }

@@ -9,11 +9,8 @@ public class LoginRequestConverter {
     }
 
     public static UserDto convert(LoginRequest loginRequest) {
-        UserDto user = new UserDto();
-
-        user.setEmail(loginRequest.getEmail());
-        user.setPassword(loginRequest.getPassword());
-
-        return user;
+        return UserDto.builder()
+                .email(loginRequest.getEmail())
+                .password(loginRequest.getPassword()).build();
     }
 }

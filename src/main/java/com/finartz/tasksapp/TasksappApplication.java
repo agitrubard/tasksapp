@@ -39,12 +39,11 @@ public class TasksappApplication {
     private UserEntity saveAdmin() {
         log.debug("Save Admin Call Starting");
 
-        UserEntity user = new UserEntity();
-
-        user.setName("Admin");
-        user.setSurname("Finartz");
-        user.setEmail("admin@tasksapp.com");
-        user.setPassword(encoder.encode("123456"));
+        UserEntity user = UserEntity.builder()
+                .name("Admin")
+                .surname("Finartz")
+                .email("admin@tasksapp.com")
+                .password(encoder.encode("123456")).build();
 
         return userRepository.save(user);
     }
@@ -52,10 +51,9 @@ public class TasksappApplication {
     private void addTeamLeadRole(UserEntity user) {
         log.debug("Add Team Lead Role Call Starting");
 
-        RoleEntity role = new RoleEntity();
-
-        role.setUser(user);
-        role.setType(RoleType.TEAM_LEAD);
+        RoleEntity role = RoleEntity.builder()
+                .user(user)
+                .type(RoleType.TEAM_LEAD).build();
 
         roleRepository.save(role);
     }
