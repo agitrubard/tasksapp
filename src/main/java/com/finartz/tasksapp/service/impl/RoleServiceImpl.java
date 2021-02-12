@@ -8,7 +8,6 @@ import com.finartz.tasksapp.model.exception.UserNotFoundException;
 import com.finartz.tasksapp.model.request.AddRoleRequest;
 import com.finartz.tasksapp.model.response.GetUserRoleResponse;
 import com.finartz.tasksapp.model.response.GetUsersRoleResponse;
-import com.finartz.tasksapp.model.response.constant.ErrorLogConstant;
 import com.finartz.tasksapp.repository.RoleRepository;
 import com.finartz.tasksapp.repository.UserRepository;
 import com.finartz.tasksapp.service.RoleService;
@@ -20,6 +19,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.finartz.tasksapp.service.impl.UserServiceImpl.isUserPresent;
+import static com.finartz.tasksapp.model.response.constant.ErrorLogConstant.USER_NOT_FOUND;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -29,27 +31,16 @@ public class RoleServiceImpl implements RoleService {
     private final UserRepository userRepository;
 
     @Override
-    public void addRole(Long id, AddRoleRequest addRoleRequest) throws UserNotFoundException {
+    public GetUserRoleResponse addRole(Long userId, AddRoleRequest addRoleRequest) throws UserNotFoundException {
         log.debug("Add Role Call Starting");
 
-        Optional<UserEntity> userEntityOptional = userRepository.findById(id);
+        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        boolean userIsPresent = userEntityOptional.isPresent();
-        if (userIsPresent) {
-            addOrUpdateRole(addRoleRequest, userEntityOptional);
+        if (isUserPresent(userEntityOptional)) {
+            return addOrUpdateRole(addRoleRequest, userEntityOptional.get());
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
-        }
-    }
-
-    private void addOrUpdateRole(AddRoleRequest addRoleRequest, Optional<UserEntity> userEntityOptional) {
-        Optional<RoleEntity> roleEntityOptional = roleRepository.findById(userEntityOptional.get().getId());
-
-        if (!isRolePresent(roleEntityOptional)) {
-            add(addRoleRequest, userEntityOptional);
-        } else {
-            update(addRoleRequest, roleEntityOptional);
         }
     }
 
@@ -62,7 +53,7 @@ public class RoleServiceImpl implements RoleService {
         if (isRolePresent(roleEntityOptional)) {
             return getRole(roleEntityOptional.get());
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
         }
     }
@@ -75,25 +66,39 @@ public class RoleServiceImpl implements RoleService {
         return getRolesResponses(roleEntities);
     }
 
-    private void add(AddRoleRequest addRoleRequest, Optional<UserEntity> userEntityOptional) {
+    private GetUserRoleResponse addOrUpdateRole(AddRoleRequest addRoleRequest, UserEntity userEntity) {
+        log.debug("Add or Update Role Call Starting");
+
+        Optional<RoleEntity> roleEntityOptional = roleRepository.findById(userEntity.getId());
+
+        if (!isRolePresent(roleEntityOptional)) {
+            return add(addRoleRequest, userEntity);
+        } else {
+            return update(addRoleRequest, roleEntityOptional.get());
+        }
+    }
+
+    private GetUserRoleResponse add(AddRoleRequest addRoleRequest, UserEntity userEntity) {
         log.debug("Add Call Starting");
 
         RoleDto role = AddRoleRequestConverter.convert(addRoleRequest);
         RoleEntity roleEntity = RoleEntity.builder()
-                .user(userEntityOptional.get())
+                .user(userEntity)
                 .type(role.getType()).build();
 
         roleRepository.save(roleEntity);
+        return getRole(roleEntity);
     }
 
-    private void update(AddRoleRequest addRoleRequest, Optional<RoleEntity> roleEntityOptional) {
+    private GetUserRoleResponse update(AddRoleRequest addRoleRequest, RoleEntity roleEntity) {
         log.debug("Update Call Starting");
 
         RoleDto role = AddRoleRequestConverter.convert(addRoleRequest);
 
-        roleEntityOptional.get().setType(role.getType());
+        roleEntity.setType(role.getType());
 
-        roleRepository.save(roleEntityOptional.get());
+        roleRepository.save(roleEntity);
+        return getRole(roleEntity);
     }
 
     private GetUserRoleResponse getRole(RoleEntity roleEntity) {
@@ -102,7 +107,7 @@ public class RoleServiceImpl implements RoleService {
         return GetUserRoleResponse.builder()
                 .name(roleEntity.getUser().getName())
                 .surname(roleEntity.getUser().getSurname())
-                .type(roleEntity.getType()).build();
+                .roleType(roleEntity.getType()).build();
     }
 
     private GetUsersRoleResponse getRoles(RoleEntity roleEntity) {
@@ -112,7 +117,7 @@ public class RoleServiceImpl implements RoleService {
                 .userId(roleEntity.getUser().getId())
                 .name(roleEntity.getUser().getName())
                 .surname(roleEntity.getUser().getSurname())
-                .type(roleEntity.getType()).build();
+                .roleType(roleEntity.getType()).build();
     }
 
     private List<GetUsersRoleResponse> getRolesResponses(List<RoleEntity> roleEntities) {

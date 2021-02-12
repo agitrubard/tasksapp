@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface MetricRepository extends JpaRepository<MetricEntity, Long> {
 
-    Optional<MetricEntity> findByUserIdAndId(Long userId, Long metricId);
+    Optional<MetricEntity> findById(Long metricId);
 
     Optional<List<MetricEntity>> findAllByUserId(Long userId);
 

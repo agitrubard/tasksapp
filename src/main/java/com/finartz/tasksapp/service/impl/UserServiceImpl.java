@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.finartz.tasksapp.model.response.constant.ErrorLogConstant.USER_NOT_FOUND;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -34,15 +36,15 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Override
-    public void createUser(SignupRequest signupRequest) throws UserAlreadyExistsException {
+    public GetUserResponse createUser(SignupRequest signupRequest) throws UserAlreadyExistsException {
         log.debug("Create User Call Starting");
 
         UserDto user = SignupRequestConverter.convert(signupRequest);
-        save(user);
+        return save(user);
     }
 
     @Override
-    public void login(LoginRequest loginRequest) throws UserNotFoundException, PasswordNotCorrectException {
+    public GetUserResponse login(LoginRequest loginRequest) throws UserNotFoundException, PasswordNotCorrectException {
         log.debug("Log In Call Starting");
 
         UserDto user = LoginRequestConverter.convert(loginRequest);
@@ -50,37 +52,39 @@ public class UserServiceImpl implements UserService {
 
         if (isUserPresent(userEntityOptional)) {
             loginPasswordControl(loginRequest, userEntityOptional);
+            return getUser(userEntityOptional.get());
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
         }
     }
 
     @Override
-    public void updateUserByUserId(Long userId, UpdateUserRequest updateUserRequest) throws UserNotFoundException {
+    public GetUserResponse updateUserByUserId(Long userId, UpdateUserRequest updateUserRequest) throws UserNotFoundException {
         log.debug("Update User By UserId Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
         if (isUserPresent(userEntityOptional)) {
             UserDto user = UpdateUserRequestConverter.convert(updateUserRequest);
-            updateUser(user, userEntityOptional.get());
+            return updateUser(user, userEntityOptional.get());
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
         }
     }
 
     @Override
-    public void deleteUserByUserId(Long userId) throws UserNotFoundException {
+    public GetUserResponse deleteUserByUserId(Long userId) throws UserNotFoundException {
         log.debug("Delete User By UserId Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
         if (isUserPresent(userEntityOptional)) {
             userRepository.delete(userEntityOptional.get());
+            return getUser(userEntityOptional.get());
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
         }
     }
@@ -94,7 +98,7 @@ public class UserServiceImpl implements UserService {
         if (isUserPresent(userEntityOptional)) {
             return getUser(userEntityOptional.get());
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
         }
     }
@@ -107,20 +111,20 @@ public class UserServiceImpl implements UserService {
         return getUsersResponses(userEntities);
     }
 
-    private void save(UserDto user) throws UserAlreadyExistsException {
+    private GetUserResponse save(UserDto user) throws UserAlreadyExistsException {
         log.debug("Save Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findByEmail(user.getEmail());
 
         if (!isUserPresent(userEntityOptional)) {
-            saveUser(user);
+            return saveUser(user);
         } else {
             log.error("User Already Exists!");
             throw new UserAlreadyExistsException();
         }
     }
 
-    private void saveUser(UserDto user) {
+    private GetUserResponse saveUser(UserDto user) {
         log.debug("Save User Call Starting");
 
         UserEntity userEntity = UserEntity.builder()
@@ -130,6 +134,7 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder(user.getPassword())).build();
 
         userRepository.save(userEntity);
+        return getUser(userEntity);
     }
 
     private void loginPasswordControl(LoginRequest loginRequest, Optional<UserEntity> userEntityOptional) throws PasswordNotCorrectException {
@@ -142,7 +147,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void updateUser(UserDto user, UserEntity userEntity) {
+    private GetUserResponse updateUser(UserDto user, UserEntity userEntity) {
         log.debug("Update User Call Starting");
 
         userEntity.setName(user.getName());
@@ -150,6 +155,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmail(user.getEmail());
 
         userRepository.save(userEntity);
+        return getUser(userEntity);
     }
 
     private GetUserResponse getUser(UserEntity userEntity) {

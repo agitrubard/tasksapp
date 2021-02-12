@@ -14,6 +14,6 @@ import java.io.Serializable;
 @Builder
 public class RoleDto implements Serializable {
 
-    private static final long serialVersionUID = -576987906715524428L;
+    private static final long serialVersionUID = 9044841782172415696L;
     private RoleType type;
 }

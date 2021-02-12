@@ -14,13 +14,13 @@ import java.util.List;
 
 public interface UserService {
 
-    void createUser(SignupRequest signupRequest) throws UserAlreadyExistsException;
+    GetUserResponse createUser(SignupRequest signupRequest) throws UserAlreadyExistsException;
 
-    void login(LoginRequest loginRequest) throws UserNotFoundException, PasswordNotCorrectException;
+    GetUserResponse login(LoginRequest loginRequest) throws UserNotFoundException, PasswordNotCorrectException;
 
-    void updateUserByUserId(Long userId, UpdateUserRequest updateUserRequest) throws UserNotFoundException;
+    GetUserResponse updateUserByUserId(Long userId, UpdateUserRequest updateUserRequest) throws UserNotFoundException;
 
-    void deleteUserByUserId(Long userId) throws UserNotFoundException;
+    GetUserResponse deleteUserByUserId(Long userId) throws UserNotFoundException;
 
     GetUserResponse getUserByUserId(@PathVariable Long userId) throws UserNotFoundException;
 

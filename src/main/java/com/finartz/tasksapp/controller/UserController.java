@@ -15,39 +15,41 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static com.finartz.tasksapp.controller.endpoint.UserControllerEndpoint.*;
+
 @RestController
 @AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping(value = UserControllerEndpoint.SIGN_UP)
+    @PostMapping(value = SIGN_UP)
     public void signUp(@RequestBody SignupRequest signupRequest) throws UserAlreadyExistsException {
         userService.createUser(signupRequest);
     }
 
-    @PostMapping(value = UserControllerEndpoint.LOG_IN)
+    @PostMapping(value = LOG_IN)
     public void logIn(@RequestBody LoginRequest loginRequest) throws UserNotFoundException, PasswordNotCorrectException {
         userService.login(loginRequest);
     }
 
-    @PutMapping(value = UserControllerEndpoint.USER_ID)
+    @PutMapping(value = USER_ID)
     public void updateUserByUserId(@PathVariable Long userId,
                                    @RequestBody UpdateUserRequest updateUserRequest) throws UserNotFoundException {
         userService.updateUserByUserId(userId, updateUserRequest);
     }
 
-    @DeleteMapping(value = UserControllerEndpoint.USER_ID)
+    @DeleteMapping(value = USER_ID)
     public void deleteUserByUserId(@PathVariable Long userId) throws UserNotFoundException {
         userService.deleteUserByUserId(userId);
     }
 
-    @GetMapping(value = UserControllerEndpoint.USER_ID)
+    @GetMapping(value = USER_ID)
     public GetUserResponse getUserByUserId(@PathVariable Long userId) throws UserNotFoundException {
         return userService.getUserByUserId(userId);
     }
 
-    @GetMapping(value = UserControllerEndpoint.USERS)
+    @GetMapping(value = USERS)
     public List<GetUsersResponse> getAllUsers() {
         return userService.getAllUsers();
     }

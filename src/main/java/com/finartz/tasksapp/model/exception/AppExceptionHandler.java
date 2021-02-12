@@ -21,11 +21,6 @@ public class AppExceptionHandler {
         return "Metric is not found!";
     }
 
-    @ExceptionHandler({MetricAlreadyExistException.class})
-    public String metricAlreadyExist() {
-        return "User's metric is already exist!";
-    }
-
     @ExceptionHandler({PasswordNotCorrectException.class})
     public String passwordNotCorrect() {
         return "Password is not correct!";

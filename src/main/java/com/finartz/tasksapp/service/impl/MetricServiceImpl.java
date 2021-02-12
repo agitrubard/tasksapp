@@ -12,7 +12,6 @@ import com.finartz.tasksapp.model.request.UpdateMetricRequest;
 import com.finartz.tasksapp.model.response.GetMetricResponse;
 import com.finartz.tasksapp.model.response.GetMetricsResponse;
 import com.finartz.tasksapp.model.response.GetUserMetricsResponse;
-import com.finartz.tasksapp.model.response.constant.ErrorLogConstant;
 import com.finartz.tasksapp.repository.MetricRepository;
 import com.finartz.tasksapp.repository.UserRepository;
 import com.finartz.tasksapp.service.MetricService;
@@ -24,6 +23,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.finartz.tasksapp.service.impl.UserServiceImpl.isUserPresent;
+import static com.finartz.tasksapp.model.response.constant.ErrorLogConstant.*;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -33,58 +35,44 @@ public class MetricServiceImpl implements MetricService {
     private final UserRepository userRepository;
 
     @Override
-    public void createMetricByUserId(Long userId, CreateMetricRequest createMetricRequest) throws UserNotFoundException {
+    public GetMetricResponse createMetricByUserId(Long userId, CreateMetricRequest createMetricRequest) throws UserNotFoundException {
         log.debug("Create Metric By User ID Call Starting");
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
-            createMetric(createMetricRequest, userEntityOptional);
+        if (isUserPresent(userEntityOptional)) {
+            return createMetric(createMetricRequest, userEntityOptional);
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
         }
     }
 
     @Override
-    public void updateMetricByUserIdAndMetricId(Long userId, UpdateMetricRequest updateMetricRequest, Long metricId) throws UserNotFoundException, MetricNotFoundException {
+    public GetMetricResponse updateMetricByMetricId(Long metricId, UpdateMetricRequest updateMetricRequest) throws MetricNotFoundException {
         log.debug("Update Metric By User ID and Metric ID Call Starting");
 
-        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+        Optional<MetricEntity> metricEntityOptional = metricRepository.findById(metricId);
 
-        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
-            Optional<MetricEntity> metricEntityOptional = metricRepository.findByUserIdAndId(userEntityOptional.get().getId(), metricId);
-
-            if (isMetricPresent(metricEntityOptional)) {
-                updateMetric(updateMetricRequest, metricId);
-            } else {
-                log.error(ErrorLogConstant.METRIC_NOT_FOUND);
-                throw new MetricNotFoundException();
-            }
+        if (isMetricPresent(metricEntityOptional)) {
+            return updateMetric(metricEntityOptional.get(), updateMetricRequest);
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
-            throw new UserNotFoundException();
+            log.error(METRIC_NOT_FOUND);
+            throw new MetricNotFoundException();
         }
     }
 
     @Override
-    public GetMetricResponse getMetricByUserIdAndMetricId(Long userId, Long metricId) throws UserNotFoundException, MetricNotFoundException {
+    public GetMetricResponse getMetricByMetricId(Long metricId) throws MetricNotFoundException {
         log.debug("Get Metric By User ID and Metric ID Call Starting");
 
-        Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
+        Optional<MetricEntity> metricEntityOptional = metricRepository.findById(metricId);
 
-        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
-            Optional<MetricEntity> metricEntityOptional = metricRepository.findByUserIdAndId(userEntityOptional.get().getId(), metricId);
-
-            if (isMetricPresent(metricEntityOptional)) {
-                return getMetric(metricEntityOptional.get());
-            } else {
-                log.error(ErrorLogConstant.METRIC_NOT_FOUND);
-                throw new MetricNotFoundException();
-            }
+        if (isMetricPresent(metricEntityOptional)) {
+            return getMetric(metricEntityOptional.get());
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
-            throw new UserNotFoundException();
+            log.error(METRIC_NOT_FOUND);
+            throw new MetricNotFoundException();
         }
     }
 
@@ -94,17 +82,17 @@ public class MetricServiceImpl implements MetricService {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
+        if (isUserPresent(userEntityOptional)) {
             Optional<List<MetricEntity>> metricEntitiesOptional = metricRepository.findAllByUserId(userEntityOptional.get().getId());
 
             if (areMetricsPresent(metricEntitiesOptional)) {
                 return getUserMetricsResponses(metricEntitiesOptional.get());
             } else {
-                log.error(ErrorLogConstant.METRIC_NOT_FOUND);
+                log.error(METRIC_NOT_FOUND);
                 throw new MetricNotFoundException();
             }
         } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
             throw new UserNotFoundException();
         }
     }
@@ -114,60 +102,44 @@ public class MetricServiceImpl implements MetricService {
         log.debug("Get All Metrics Call Starting");
 
         List<MetricEntity> metricEntities = metricRepository.findAll();
-
-        boolean metricIsEmpty = metricEntities.isEmpty();
-        if (!metricIsEmpty) {
-            return getAllMetricsResponses(metricEntities);
-        } else {
-            log.error(ErrorLogConstant.METRIC_NOT_FOUND);
-            throw new MetricNotFoundException();
-        }
+        return getAllMetricsResponses(metricEntities);
     }
 
-    private void createMetric(CreateMetricRequest createMetricRequest, Optional<UserEntity> userEntityOptional) throws UserNotFoundException {
+    private GetMetricResponse createMetric(CreateMetricRequest createMetricRequest, Optional<UserEntity> userEntityOptional) {
         log.debug("Create Metric Call Starting");
 
         MetricDto metric = CreateMetricRequestConverter.convert(createMetricRequest);
 
-        if (UserServiceImpl.isUserPresent(userEntityOptional)) {
-            MetricEntity metricEntity = MetricEntity.builder()
-                    .user(userEntityOptional.get())
-                    .sprintLabel(metric.getSprintLabel())
-                    .commit(metric.getCommit())
-                    .bugCount(metric.getBugCount())
-                    .complete(metric.getComplete()).build();
+        MetricEntity metricEntity = MetricEntity.builder()
+                .user(userEntityOptional.get())
+                .sprintLabel(metric.getSprintLabel())
+                .commit(metric.getCommit())
+                .bugCount(metric.getBugCount())
+                .complete(metric.getComplete()).build();
 
-            metricRepository.save(metricEntity);
-        } else {
-            log.error(ErrorLogConstant.USER_NOT_FOUND);
-            throw new UserNotFoundException();
-        }
+        metricRepository.save(metricEntity);
+        return getMetric(metricEntity);
     }
 
-    private void updateMetric(UpdateMetricRequest updateMetricRequest, Long metricId) throws MetricNotFoundException {
+    private GetMetricResponse updateMetric(MetricEntity metricEntity, UpdateMetricRequest updateMetricRequest) {
         log.debug("Update Metric Call Starting");
 
-        Optional<MetricEntity> metricEntityOptional = metricRepository.findById(metricId);
+        MetricDto metric = UpdateMetricRequestConverter.convert(updateMetricRequest);
 
-        if (isMetricPresent(metricEntityOptional)) {
-            MetricDto metric = UpdateMetricRequestConverter.convert(updateMetricRequest);
+        metricEntity.setSprintLabel(metric.getSprintLabel());
+        metricEntity.setCommit(metric.getCommit());
+        metricEntity.setBugCount(metric.getBugCount());
+        metricEntity.setComplete(metric.getComplete());
 
-            metricEntityOptional.get().setSprintLabel(metric.getSprintLabel());
-            metricEntityOptional.get().setCommit(metric.getCommit());
-            metricEntityOptional.get().setBugCount(metric.getBugCount());
-            metricEntityOptional.get().setComplete(metric.getComplete());
-
-            metricRepository.save(metricEntityOptional.get());
-        } else {
-            log.error(ErrorLogConstant.METRIC_NOT_FOUND);
-            throw new MetricNotFoundException();
-        }
+        metricRepository.save(metricEntity);
+        return getMetric(metricEntity);
     }
 
     private GetMetricResponse getMetric(MetricEntity metricEntity) {
         log.debug("Get Metric Call Starting");
 
         return GetMetricResponse.builder()
+                .userId(metricEntity.getUser().getId())
                 .sprintLabel(metricEntity.getSprintLabel())
                 .commit(metricEntity.getCommit())
                 .bugCount(metricEntity.getBugCount())

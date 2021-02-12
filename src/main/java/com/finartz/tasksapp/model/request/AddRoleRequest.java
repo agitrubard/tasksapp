@@ -12,6 +12,6 @@ import java.io.Serializable;
 @ToString
 public class AddRoleRequest implements Serializable {
 
-    private static final long serialVersionUID = -2747877397842797594L;
-    private RoleType type;
+    private static final long serialVersionUID = 2331942402825992699L;
+    private RoleType roleType;
 }

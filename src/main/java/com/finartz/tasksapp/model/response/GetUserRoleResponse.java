@@ -14,5 +14,5 @@ public class GetUserRoleResponse {
 
     private String name;
     private String surname;
-    private RoleType type;
+    private RoleType roleType;
 }

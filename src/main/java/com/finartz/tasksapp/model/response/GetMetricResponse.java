@@ -11,6 +11,7 @@ import lombok.ToString;
 @Builder
 public class GetMetricResponse {
 
+    private Long userId;
     private String sprintLabel;
     private Integer commit;
     private Integer bugCount;

@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface RoleService {
 
-    void addRole(Long id, AddRoleRequest addRoleRequest) throws UserNotFoundException;
+    GetUserRoleResponse addRole(Long userId, AddRoleRequest addRoleRequest) throws UserNotFoundException;
 
-    GetUserRoleResponse getUserRoleByUserId(Long id) throws UserNotFoundException;
+    GetUserRoleResponse getUserRoleByUserId(Long userId) throws UserNotFoundException;
 
     List<GetUsersRoleResponse> getAllUsersRole();
 }

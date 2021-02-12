@@ -16,6 +16,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import static com.finartz.tasksapp.controller.endpoint.UserControllerEndpoint.*;
+import static com.finartz.tasksapp.controller.endpoint.MetricControllerEndpoint.*;
+import static com.finartz.tasksapp.controller.endpoint.RoleControllerEndpoint.*;
+import static com.finartz.tasksapp.model.enums.RoleType.*;
+
 @Configuration
 @EnableWebSecurity
 @EnableJpaRepositories(basePackageClasses = UserRepository.class)
@@ -36,18 +41,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(UserControllerEndpoint.SIGN_UP).permitAll()
+                .antMatchers(SIGN_UP).permitAll()
+                .antMatchers(LOG_IN,
+                        CREATE_METRIC_BY_USER_ID,
+                        METRIC_BY_METRIC_ID,
+                        GET_METRICS_BY_USER_ID).hasAnyRole(TEAM_LEAD.name(), DEVELOPER.name())
                 .antMatchers(
-                        UserControllerEndpoint.LOG_IN,
-                        MetricControllerEndpoint.CREATE_METRIC_BY_USER_ID,
-                        MetricControllerEndpoint.METRIC_BY_USER_ID_AND_METRIC_ID,
-                        MetricControllerEndpoint.GET_METRICS_BY_USER_ID).hasAnyRole(RoleType.TEAM_LEAD.name(), RoleType.DEVELOPER.name())
-                .antMatchers(
-                        UserControllerEndpoint.USER,
-                        UserControllerEndpoint.USER_ID,
-                        MetricControllerEndpoint.GET_METRICS,
-                        RoleControllerEndpoint.ROLE_BY_USER_ID,
-                        RoleControllerEndpoint.GET_USERS_ROLE).hasAnyRole(RoleType.TEAM_LEAD.name())
+                        USER,
+                        USER_ID,
+                        GET_METRICS,
+                        ROLE_BY_USER_ID,
+                        GET_USERS_ROLE).hasAnyRole(TEAM_LEAD.name())
                 .anyRequest().authenticated()
                 .and().httpBasic();
     }

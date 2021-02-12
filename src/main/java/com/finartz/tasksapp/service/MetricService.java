@@ -12,11 +12,11 @@ import java.util.List;
 
 public interface MetricService {
 
-    void createMetricByUserId(Long userId, CreateMetricRequest createMetricRequest) throws UserNotFoundException;
+    GetMetricResponse createMetricByUserId(Long userId, CreateMetricRequest createMetricRequest) throws UserNotFoundException;
 
-    void updateMetricByUserIdAndMetricId(Long userId, UpdateMetricRequest updateMetricRequest, Long metricId) throws UserNotFoundException, MetricNotFoundException;
+    GetMetricResponse updateMetricByMetricId(Long metricId, UpdateMetricRequest updateMetricRequest) throws MetricNotFoundException;
 
-    GetMetricResponse getMetricByUserIdAndMetricId(Long userId, Long metricId) throws UserNotFoundException, MetricNotFoundException;
+    GetMetricResponse getMetricByMetricId(Long metricId) throws MetricNotFoundException;
 
     List<GetUserMetricsResponse> getMetricsByUserId(Long userId) throws UserNotFoundException, MetricNotFoundException;
 
