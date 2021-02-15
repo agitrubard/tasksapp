@@ -60,18 +60,12 @@ class MetricServiceImplTest {
     @Test
     void testCreateMetricByUserIdUserException() {
         // Given
-        CreateMetricRequest createMetricRequest = CreateMetricRequest.builder()
-                .sprintLabel("Test-Label")
-                .commit(1)
-                .bugCount(1)
-                .complete(1).build();
 
         // When
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            metricService.createMetricByUserId(1L, createMetricRequest);
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> metricService.createMetricByUserId(1L, CreateMetricRequest.builder().build()));
     }
 
     @Test
@@ -110,9 +104,8 @@ class MetricServiceImplTest {
         // When
 
         // Then
-        assertThrows(MetricNotFoundException.class, () -> {
-            metricService.updateMetricByMetricId(1L, UpdateMetricRequest.builder().build());
-        });
+        assertThrows(MetricNotFoundException.class,
+                () -> metricService.updateMetricByMetricId(1L, UpdateMetricRequest.builder().build()));
     }
 
     @Test
@@ -131,6 +124,7 @@ class MetricServiceImplTest {
 
         // Then
         assertEquals(metricResponse.getUserId(), userMock.getId());
+        assertEquals(metricResponse.getSprintLabel(), metricMock.getSprintLabel());
     }
 
     @Test
@@ -140,9 +134,8 @@ class MetricServiceImplTest {
         // When
 
         // Then
-        assertThrows(MetricNotFoundException.class, () -> {
-            metricService.getMetricByMetricId(1L);
-        });
+        assertThrows(MetricNotFoundException.class,
+                () -> metricService.getMetricByMetricId(1L));
     }
 
     @Test
@@ -170,9 +163,8 @@ class MetricServiceImplTest {
         // When
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            metricService.getMetricsByUserId(1L);
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> metricService.getMetricsByUserId(1L));
     }
 
     @Test
@@ -185,9 +177,8 @@ class MetricServiceImplTest {
         when(userRepository.findById(userMock.getId())).thenReturn(Optional.of(userMock));
 
         // Then
-        assertThrows(MetricNotFoundException.class, () -> {
-            metricService.getMetricsByUserId(userMock.getId());
-        });
+        assertThrows(MetricNotFoundException.class,
+                () -> metricService.getMetricsByUserId(userMock.getId()));
     }
 
     @Test
@@ -204,6 +195,6 @@ class MetricServiceImplTest {
         List<GetMetricsResponse> metricsResponses = metricService.getAllMetrics();
 
         // Then
-        assertEquals(metricsResponses.size(), 1);
+        assertEquals(metricsResponses.get(0).getUserId(), userMock.getId());
     }
 }

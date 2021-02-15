@@ -83,9 +83,8 @@ public class RoleServiceImplTest {
         // When
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            roleService.addRole(1L, new AddRoleRequest());
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> roleService.addRole(1L, new AddRoleRequest()));
     }
 
     @Test
@@ -114,9 +113,8 @@ public class RoleServiceImplTest {
         // When
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            roleService.getUserRoleByUserId(1L);
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> roleService.getUserRoleByUserId(1L));
     }
 
     @Test

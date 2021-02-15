@@ -100,9 +100,8 @@ class UserServiceImplTest {
         when(loginRequestMock.getEmail()).thenReturn("test@email.com");
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            userService.login(loginRequestMock);
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> userService.login(loginRequestMock));
     }
 
     @Test
@@ -118,9 +117,8 @@ class UserServiceImplTest {
         when(userRepository.findByEmail(userMock.getEmail())).thenReturn(Optional.of(userMock));
 
         // Then
-        assertThrows(PasswordNotCorrectException.class, () -> {
-            userService.login(loginRequest);
-        });
+        assertThrows(PasswordNotCorrectException.class,
+                () -> userService.login(loginRequest));
     }
 
 
@@ -150,12 +148,12 @@ class UserServiceImplTest {
     @Test
     void testUpdateUserByUserIdUserException() {
         // Given
+
         // When
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            userService.updateUserByUserId(1L, UpdateUserRequest.builder().build());
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> userService.updateUserByUserId(1L, UpdateUserRequest.builder().build()));
     }
 
     @Test
@@ -174,15 +172,12 @@ class UserServiceImplTest {
     @Test
     void testDeleteUserByUserIdUserException() {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            userService.deleteUserByUserId(userMock.getId());
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> userService.deleteUserByUserId(1L));
     }
 
     @Test
@@ -203,15 +198,12 @@ class UserServiceImplTest {
     @Test
     void testGetUserByUserIdUserException() {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
 
         // Then
-        assertThrows(UserNotFoundException.class, () -> {
-            userService.getUserByUserId(userMock.getId());
-        });
+        assertThrows(UserNotFoundException.class,
+                () -> userService.getUserByUserId(1L));
     }
 
     @Test
@@ -225,6 +217,6 @@ class UserServiceImplTest {
         List<GetUsersResponse> usersResponses = userService.getAllUsers();
 
         // Then
-        assertEquals(usersResponses.size(), 1);
+        assertEquals(usersResponses.get(0).getId(), userMock.getId());
     }
 }
