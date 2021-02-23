@@ -35,7 +35,7 @@ class UserServiceImplTest {
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Test
-    void testCreateUser() throws UserAlreadyExistsException {
+    void givenSignupRequest_whenCallCreateUser_thenCreate() throws UserAlreadyExistsException {
         // Given
         SignupRequest signupRequest = SignupRequest.builder()
                 .name("Test-Name")
@@ -51,39 +51,39 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testCreateUserException() {
+    void givenSignupRequest_whenCallCreate_thenUserAlreadyExistsException() {
         // Given
         SignupRequest signupRequest = SignupRequest.builder()
                 .name("Test-Name")
                 .surname("Test-Surname")
                 .email("test@email.com")
                 .password("123-Test").build();
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getEmail()).thenReturn("test@email.com");
-        when(userRepository.findByEmail(userMock.getEmail())).thenReturn(Optional.of(userMock));
+        when(mockUserEntity.getEmail()).thenReturn("test@email.com");
+        when(userRepository.findByEmail(mockUserEntity.getEmail())).thenReturn(Optional.of(mockUserEntity));
 
         // Then
         assertThrows(UserAlreadyExistsException.class, () -> {
             GetUserResponse userResponse = userService.createUser(signupRequest);
-            assertEquals(userMock.getEmail(), userResponse.getEmail());
+            assertEquals(mockUserEntity.getEmail(), userResponse.getEmail());
         });
     }
 
     @Test
-    void testLogin() throws UserNotFoundException, PasswordNotCorrectException {
+    void givenLoginRequest_whenCallLogin_thenLogin() throws UserNotFoundException, PasswordNotCorrectException {
         // Given
         LoginRequest loginRequest = LoginRequest.builder()
                 .email("test@email.com")
                 .password("123-Test").build();
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getEmail()).thenReturn("test@email.com");
-        when(userMock.getPassword()).thenReturn(encoder.encode("123-Test"));
-        when(userRepository.findByEmail(userMock.getEmail())).thenReturn(Optional.of(userMock));
-        boolean passwordControl = encoder.matches(loginRequest.getPassword(), userMock.getPassword());
+        when(mockUserEntity.getEmail()).thenReturn("test@email.com");
+        when(mockUserEntity.getPassword()).thenReturn(encoder.encode("123-Test"));
+        when(userRepository.findByEmail(mockUserEntity.getEmail())).thenReturn(Optional.of(mockUserEntity));
+        boolean passwordControl = encoder.matches(loginRequest.getPassword(), mockUserEntity.getPassword());
         GetUserResponse userResponse = userService.login(loginRequest);
 
         // Then
@@ -92,29 +92,29 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testLoginUserException() {
+    void givenLoginRequest_whenCallLogin_thenUserNotFoundException() {
         // Given
-        LoginRequest loginRequestMock = mock(LoginRequest.class);
+        LoginRequest mockLoginRequest = mock(LoginRequest.class);
 
         // When
-        when(loginRequestMock.getEmail()).thenReturn("test@email.com");
+        when(mockLoginRequest.getEmail()).thenReturn("test@email.com");
 
         // Then
         assertThrows(UserNotFoundException.class,
-                () -> userService.login(loginRequestMock));
+                () -> userService.login(mockLoginRequest));
     }
 
     @Test
-    void testLoginPasswordException() {
+    void givenLoginRequest_whenCallLogin_thenPasswordNotCorrectException() {
         // Given
         LoginRequest loginRequest = LoginRequest.builder()
                 .email("test@email.com")
                 .password("123-Test").build();
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getEmail()).thenReturn("test@email.com");
-        when(userRepository.findByEmail(userMock.getEmail())).thenReturn(Optional.of(userMock));
+        when(mockUserEntity.getEmail()).thenReturn("test@email.com");
+        when(userRepository.findByEmail(mockUserEntity.getEmail())).thenReturn(Optional.of(mockUserEntity));
 
         // Then
         assertThrows(PasswordNotCorrectException.class,
@@ -123,7 +123,7 @@ class UserServiceImplTest {
 
 
     @Test
-    void testUpdateUserByUserId() throws UserNotFoundException {
+    void givenUpdateUserRequest_whenCallUpdateUserByUserId_thenUpdateUser() throws UserNotFoundException {
         // Given
         UserEntity user = UserEntity.builder()
                 .id(1L)
@@ -146,7 +146,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testUpdateUserByUserIdUserException() {
+    void whenCallUpdateUserByUserId_thenUserNotFoundException() {
         // Given
 
         // When
@@ -157,20 +157,20 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testDeleteUserByUserId() throws UserNotFoundException {
+    void givenUserEntity_whenCallDeleteUserByUserId_thenDeleteUser() throws UserNotFoundException {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(userRepository.findById(userMock.getId())).thenReturn(Optional.of(userMock));
-        userService.deleteUserByUserId(userMock.getId());
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(userRepository.findById(mockUserEntity.getId())).thenReturn(Optional.of(mockUserEntity));
+        userService.deleteUserByUserId(mockUserEntity.getId());
 
         // Then
     }
 
     @Test
-    void testDeleteUserByUserIdUserException() {
+    void whenCallDeleteUserByUserId_thenUserNotFoundException() {
         // Given
 
         // When
@@ -181,22 +181,22 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetUserByUserId() throws UserNotFoundException {
+    void givenUserEntity_whenCallGetUserByUserId_thenGetUser() throws UserNotFoundException {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(userMock.getEmail()).thenReturn("test@email.com");
-        when(userRepository.findById(userMock.getId())).thenReturn(Optional.of(userMock));
-        GetUserResponse userResponse = userService.getUserByUserId(userMock.getId());
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(mockUserEntity.getEmail()).thenReturn("test@email.com");
+        when(userRepository.findById(mockUserEntity.getId())).thenReturn(Optional.of(mockUserEntity));
+        GetUserResponse userResponse = userService.getUserByUserId(mockUserEntity.getId());
 
         // Then
-        assertEquals(userResponse.getEmail(), userMock.getEmail());
+        assertEquals(userResponse.getEmail(), mockUserEntity.getEmail());
     }
 
     @Test
-    void testGetUserByUserIdUserException() {
+    void whenCallGetUserByUserId_thenUserNotFoundException() {
         // Given
 
         // When
@@ -207,16 +207,16 @@ class UserServiceImplTest {
     }
 
     @Test
-    void testGetAllUsers() {
+    void givenUserEntity_whenCallGetAllUsers_thenGetUsers() {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(userRepository.findAll()).thenReturn(Collections.singletonList(userMock));
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(userRepository.findAll()).thenReturn(Collections.singletonList(mockUserEntity));
         List<GetUsersResponse> usersResponses = userService.getAllUsers();
 
         // Then
-        assertEquals(usersResponses.get(0).getId(), userMock.getId());
+        assertEquals(usersResponses.get(0).getId(), mockUserEntity.getId());
     }
 }

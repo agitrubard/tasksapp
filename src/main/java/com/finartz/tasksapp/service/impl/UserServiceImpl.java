@@ -13,7 +13,6 @@ import com.finartz.tasksapp.model.request.SignupRequest;
 import com.finartz.tasksapp.model.request.UpdateUserRequest;
 import com.finartz.tasksapp.model.response.GetUserResponse;
 import com.finartz.tasksapp.model.response.GetUsersResponse;
-import com.finartz.tasksapp.model.response.constant.ErrorLogConstant;
 import com.finartz.tasksapp.repository.UserRepository;
 import com.finartz.tasksapp.service.UserService;
 import lombok.AllArgsConstructor;

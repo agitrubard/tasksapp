@@ -13,6 +13,4 @@ public interface MetricRepository extends JpaRepository<MetricEntity, Long> {
     Optional<MetricEntity> findById(Long metricId);
 
     Optional<List<MetricEntity>> findAllByUserId(Long userId);
-
-    List<MetricEntity> findAll();
 }

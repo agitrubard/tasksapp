@@ -1,6 +1,5 @@
 package com.finartz.tasksapp.controller;
 
-import com.finartz.tasksapp.controller.endpoint.UserControllerEndpoint;
 import com.finartz.tasksapp.model.exception.PasswordNotCorrectException;
 import com.finartz.tasksapp.model.exception.UserAlreadyExistsException;
 import com.finartz.tasksapp.model.exception.UserNotFoundException;

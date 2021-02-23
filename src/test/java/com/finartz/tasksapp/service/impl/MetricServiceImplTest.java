@@ -36,19 +36,19 @@ class MetricServiceImplTest {
     private UserRepository userRepository;
 
     @Test
-    void testCreateMetricByUserId() throws UserNotFoundException {
+    void givenCreateMetricRequest_whenCallCreateMetricByUserId_thenCreateMetric() throws UserNotFoundException {
         // Given
         CreateMetricRequest createMetricRequest = CreateMetricRequest.builder()
                 .sprintLabel("Test-Label")
                 .commit(1)
                 .bugCount(1)
                 .complete(1).build();
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(userRepository.findById(userMock.getId())).thenReturn(Optional.of(userMock));
-        GetMetricResponse metricResponse = metricService.createMetricByUserId(userMock.getId(), createMetricRequest);
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(userRepository.findById(mockUserEntity.getId())).thenReturn(Optional.of(mockUserEntity));
+        GetMetricResponse metricResponse = metricService.createMetricByUserId(mockUserEntity.getId(), createMetricRequest);
 
         // Then
         assertEquals(metricResponse.getSprintLabel(), createMetricRequest.getSprintLabel());
@@ -58,7 +58,7 @@ class MetricServiceImplTest {
     }
 
     @Test
-    void testCreateMetricByUserIdUserException() {
+    void whenCallCreateMetricByUserId_thenUserNotFoundException() {
         // Given
 
         // When
@@ -69,7 +69,7 @@ class MetricServiceImplTest {
     }
 
     @Test
-    void testUpdateMetricByMetricId() throws MetricNotFoundException {
+    void givenUpdateMetricRequest_whenCallUpdateMetricByMetricId_thenUpdateMetric() throws MetricNotFoundException {
         // Given
         UserEntity user = UserEntity.builder()
                 .id(1L).build();
@@ -98,7 +98,7 @@ class MetricServiceImplTest {
     }
 
     @Test
-    void testUpdateMetricByMetricIdMetricException() {
+    void whenCallUpdateMetricByMetricId_thenMetricNotFoundException() {
         // Given
 
         // When
@@ -109,26 +109,26 @@ class MetricServiceImplTest {
     }
 
     @Test
-    void testGetMetricByMetricId() throws MetricNotFoundException {
+    void givenMetricEntity_whenCallGetMetricByMetricId_thenGetMetric() throws MetricNotFoundException {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
-        MetricEntity metricMock = mock(MetricEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
+        MetricEntity mockMetricEntity = mock(MetricEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(metricMock.getId()).thenReturn(1L);
-        when(metricMock.getUser()).thenReturn(userMock);
-        when(metricMock.getSprintLabel()).thenReturn("Test-Label");
-        when(metricRepository.findById(metricMock.getId())).thenReturn(Optional.of(metricMock));
-        GetMetricResponse metricResponse = metricService.getMetricByMetricId(metricMock.getId());
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(mockMetricEntity.getId()).thenReturn(1L);
+        when(mockMetricEntity.getUser()).thenReturn(mockUserEntity);
+        when(mockMetricEntity.getSprintLabel()).thenReturn("Test-Label");
+        when(metricRepository.findById(mockMetricEntity.getId())).thenReturn(Optional.of(mockMetricEntity));
+        GetMetricResponse metricResponse = metricService.getMetricByMetricId(mockMetricEntity.getId());
 
         // Then
-        assertEquals(metricResponse.getUserId(), userMock.getId());
-        assertEquals(metricResponse.getSprintLabel(), metricMock.getSprintLabel());
+        assertEquals(metricResponse.getUserId(), mockUserEntity.getId());
+        assertEquals(metricResponse.getSprintLabel(), mockMetricEntity.getSprintLabel());
     }
 
     @Test
-    void testGetMetricByMetricIdMetricException() {
+    void whenCallGetMetricByMetricId_thenMetricNotFoundException() {
         // Given
 
         // When
@@ -139,25 +139,25 @@ class MetricServiceImplTest {
     }
 
     @Test
-    void testGetMetricsByUserId() throws UserNotFoundException, MetricNotFoundException {
+    void givenMetricEntity_whenCallGetMetricsByUserId_thenGetMetrics() throws UserNotFoundException, MetricNotFoundException {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
-        MetricEntity metricMock = mock(MetricEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
+        MetricEntity mockMetricEntity = mock(MetricEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(metricMock.getId()).thenReturn(1L);
-        when(metricMock.getUser()).thenReturn(userMock);
-        when(userRepository.findById(userMock.getId())).thenReturn(Optional.of(userMock));
-        when(metricRepository.findAllByUserId(metricMock.getUser().getId())).thenReturn(Optional.of(Collections.singletonList(metricMock)));
-        List<GetUserMetricsResponse> userMetricsResponses = metricService.getMetricsByUserId(userMock.getId());
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(mockMetricEntity.getId()).thenReturn(1L);
+        when(mockMetricEntity.getUser()).thenReturn(mockUserEntity);
+        when(userRepository.findById(mockUserEntity.getId())).thenReturn(Optional.of(mockUserEntity));
+        when(metricRepository.findAllByUserId(mockMetricEntity.getUser().getId())).thenReturn(Optional.of(Collections.singletonList(mockMetricEntity)));
+        List<GetUserMetricsResponse> userMetricsResponses = metricService.getMetricsByUserId(mockUserEntity.getId());
 
         // Then
-        assertEquals(userMetricsResponses.get(0).getMetricId(), metricMock.getId());
+        assertEquals(userMetricsResponses.get(0).getMetricId(), mockMetricEntity.getId());
     }
 
     @Test
-    void testGetMetricsByUserIdUserException() {
+    void whenCallGetMetricsByUserId_thenUserNotFoundException() {
         // Given
 
         // When
@@ -168,33 +168,33 @@ class MetricServiceImplTest {
     }
 
     @Test
-    void testGetMetricsByUserIdMetricException() {
+    void givenUserEntity_whenCallGetMetricsByUserId_thenMetricNotFoundException() {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(userRepository.findById(userMock.getId())).thenReturn(Optional.of(userMock));
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(userRepository.findById(mockUserEntity.getId())).thenReturn(Optional.of(mockUserEntity));
 
         // Then
         assertThrows(MetricNotFoundException.class,
-                () -> metricService.getMetricsByUserId(userMock.getId()));
+                () -> metricService.getMetricsByUserId(mockUserEntity.getId()));
     }
 
     @Test
-    void testGetAllMetrics() throws MetricNotFoundException {
+    void givenMetricEntity_whenCallGetAllMetrics_thenGetMetrics() throws MetricNotFoundException {
         // Given
-        UserEntity userMock = mock(UserEntity.class);
-        MetricEntity metricMock = mock(MetricEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
+        MetricEntity mockMetricEntity = mock(MetricEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(metricMock.getId()).thenReturn(1L);
-        when(metricMock.getUser()).thenReturn(userMock);
-        when(metricRepository.findAll()).thenReturn(Collections.singletonList(metricMock));
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(mockMetricEntity.getId()).thenReturn(1L);
+        when(mockMetricEntity.getUser()).thenReturn(mockUserEntity);
+        when(metricRepository.findAll()).thenReturn(Collections.singletonList(mockMetricEntity));
         List<GetMetricsResponse> metricsResponses = metricService.getAllMetrics();
 
         // Then
-        assertEquals(metricsResponses.get(0).getUserId(), userMock.getId());
+        assertEquals(metricsResponses.get(0).getUserId(), mockUserEntity.getId());
     }
 }

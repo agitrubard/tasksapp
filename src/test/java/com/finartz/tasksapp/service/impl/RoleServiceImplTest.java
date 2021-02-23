@@ -36,26 +36,25 @@ public class RoleServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-
     @Test
-    void testAddRole() throws UserNotFoundException {
+    void givenAddRoleRequest_whenCallAddRole_thenAddUserRole() throws UserNotFoundException {
         // Given
         AddRoleRequest addRoleRequest = new AddRoleRequest();
         addRoleRequest.setRoleType(TEAM_LEAD);
-        UserEntity userMock = mock(UserEntity.class);
+        UserEntity mockUserEntity = mock(UserEntity.class);
 
         // When
-        when(userMock.getId()).thenReturn(1L);
-        when(userRepository.findById(userMock.getId())).thenReturn(Optional.of(userMock));
+        when(mockUserEntity.getId()).thenReturn(1L);
+        when(userRepository.findById(mockUserEntity.getId())).thenReturn(Optional.of(mockUserEntity));
 
-        GetUserRoleResponse userRoleResponse = roleService.addRole(userMock.getId(), addRoleRequest);
+        GetUserRoleResponse userRoleResponse = roleService.addRole(mockUserEntity.getId(), addRoleRequest);
 
         // Then
         assertEquals(userRoleResponse.getRoleType(), addRoleRequest.getRoleType());
     }
 
     @Test
-    void testUpdateRole() throws UserNotFoundException {
+    void givenAddRoleRequest_whenCallUpdateRole_thenUpdateUserRole() throws UserNotFoundException {
         // Given
         UserEntity user = UserEntity.builder()
                 .id(1L).build();
@@ -77,7 +76,7 @@ public class RoleServiceImplTest {
     }
 
     @Test
-    void testAddRoleUserException() {
+    void whenCallAddRole_thenUserNotFoundException() {
         // Given
 
         // When
@@ -88,7 +87,7 @@ public class RoleServiceImplTest {
     }
 
     @Test
-    void testGetUserRoleByUserId() throws UserNotFoundException {
+    void givenRoleEntity_whenCallGetUserRoleByUserId_thenGetUserRole() throws UserNotFoundException {
         // Given
         UserEntity user = UserEntity.builder()
                 .id(1L).build();
@@ -107,7 +106,7 @@ public class RoleServiceImplTest {
     }
 
     @Test
-    void testGetUserRoleByUserIdUserException() {
+    void whenCallGetUserRoleByUserId_thenUserNotFoundException() {
         // Given
 
         // When
@@ -118,7 +117,7 @@ public class RoleServiceImplTest {
     }
 
     @Test
-    void testGetAllUsersRole() {
+    void givenRoleEntity_whenCallGetAllUsersRole_thenGetUsersRole() {
         // Given
         UserEntity user = UserEntity.builder()
                 .id(1L).build();
