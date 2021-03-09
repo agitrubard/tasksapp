@@ -1,9 +1,5 @@
 package com.finartz.tasksapp.config;
 
-import com.finartz.tasksapp.controller.endpoint.MetricControllerEndpoint;
-import com.finartz.tasksapp.controller.endpoint.RoleControllerEndpoint;
-import com.finartz.tasksapp.controller.endpoint.UserControllerEndpoint;
-import com.finartz.tasksapp.model.enums.RoleType;
 import com.finartz.tasksapp.repository.UserRepository;
 import com.finartz.tasksapp.service.impl.CustomUserDetailService;
 import lombok.AllArgsConstructor;
@@ -28,10 +24,11 @@ import static com.finartz.tasksapp.model.enums.RoleType.*;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final CustomUserDetailService userDetailService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailService).passwordEncoder(new BCryptPasswordEncoder());
+        auth.userDetailsService(userDetailService).passwordEncoder(bCryptPasswordEncoder);
     }
 
     @Override

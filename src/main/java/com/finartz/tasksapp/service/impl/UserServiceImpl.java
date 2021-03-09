@@ -32,7 +32,7 @@ import static com.finartz.tasksapp.model.response.constant.ErrorLogConstant.USER
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public GetUserResponse createUser(SignupRequest signupRequest) throws UserAlreadyExistsException {
@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .surname(user.getSurname())
                 .email(user.getEmail())
-                .password(passwordEncoder(user.getPassword())).build();
+                .password(passwordEncoder.encode(user.getPassword())).build();
 
         userRepository.save(userEntity);
         return getUser(userEntity);
@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService {
     private void loginPasswordControl(LoginRequest loginRequest, Optional<UserEntity> userEntityOptional) throws PasswordNotCorrectException {
         log.debug("Log In Password Control Call Starting");
 
-        boolean passwordControl = encoder.matches(loginRequest.getPassword(), userEntityOptional.get().getPassword());
+        boolean passwordControl = passwordEncoder.matches(loginRequest.getPassword(), userEntityOptional.get().getPassword());
         if (!passwordControl) {
             log.error("Password Not Correct!");
             throw new PasswordNotCorrectException();
@@ -184,11 +184,5 @@ public class UserServiceImpl implements UserService {
 
     public static boolean isUserPresent(Optional<UserEntity> userEntityOptional) {
         return userEntityOptional.isPresent();
-    }
-
-    private String passwordEncoder(String password) {
-        log.debug("Password Encoder Call Starting");
-
-        return encoder.encode(password);
     }
 }
